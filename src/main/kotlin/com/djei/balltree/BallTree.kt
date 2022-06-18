@@ -31,6 +31,11 @@ class BallTree(
         return result
     }
 
+    fun getPointsWithinRange(point: Point, range: Double): List<Point> {
+        // TODO
+        return emptyList()
+    }
+
     private fun computeKNearestNeighbours(
         target: Point,
         k: Int,
@@ -85,10 +90,5 @@ class BallTree(
             // never skip ball tree node if neighbours collection has not yet reached threshold k
             false
         }
-    }
-
-
-    fun getPointsWithinRange(point: Point, range: Double): List<Point> {
-        return emptyList()
     }
 }
