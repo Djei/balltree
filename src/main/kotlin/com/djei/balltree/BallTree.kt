@@ -31,9 +31,10 @@ class BallTree(
         return result
     }
 
-    fun getPointsWithinRange(point: Point, range: Double): List<Point> {
-        // TODO
-        return emptyList()
+    fun getPointsWithinRange(target: Point, range: Double): List<Point> {
+        val result = mutableListOf<Point>()
+        computePointsWithinRange(target, range, result, root)
+        return result
     }
 
     private fun computeKNearestNeighbours(
@@ -41,9 +42,9 @@ class BallTree(
         k: Int,
         neighbours: PriorityQueue<Point>,
         ballTreeNode: BallTreeNode
-    ): PriorityQueue<Point> {
-        if (skipBallTreeNode(target, k, neighbours, ballTreeNode)) {
-            return neighbours
+    ) {
+        if (skipBallTreeNodeKNearestNeighbours(target, k, neighbours, ballTreeNode)) {
+            return
         } else if (ballTreeNode.childs.first == null && ballTreeNode.childs.second == null) {
             ballTreeNode.points.forEach {
                 if (neighbours.count() < k) {
@@ -71,10 +72,9 @@ class BallTree(
                     }
             }
         }
-        return neighbours
     }
 
-    private fun skipBallTreeNode(
+    private fun skipBallTreeNodeKNearestNeighbours(
         target: Point,
         k: Int,
         neighbours: PriorityQueue<Point>,
@@ -89,5 +89,40 @@ class BallTree(
             // never skip ball tree node if neighbours collection has not yet reached threshold k
             false
         }
+    }
+
+    private fun computePointsWithinRange(
+        target: Point,
+        range: Double,
+        pointsWithinRange: MutableList<Point>,
+        ballTreeNode: BallTreeNode
+    ) {
+        if (skipBallTreeNodeWithinRange(target, range, ballTreeNode)) {
+            return
+        } else if (ballTreeNode.childs.first == null && ballTreeNode.childs.second == null) {
+            ballTreeNode.points.forEach {
+                if (distance(target, it) <= range) {
+                    pointsWithinRange.add(it)
+                }
+            }
+        } else {
+            val child1 = ballTreeNode.childs.first
+            val child2 = ballTreeNode.childs.second
+            if (child1 != null && child2 == null) {
+                computePointsWithinRange(target, range, pointsWithinRange, child1)
+            } else if (child1 == null && child2 != null) {
+                computePointsWithinRange(target, range, pointsWithinRange, child2)
+            } else if (child1 != null && child2 != null) {
+                listOf(child1, child2)
+                    .sortedBy { distance(target, it.centroid) }
+                    .forEach {
+                        computePointsWithinRange(target, range, pointsWithinRange, it)
+                    }
+            }
+        }
+    }
+
+    private fun skipBallTreeNodeWithinRange(target: Point, range: Double, ballTreeNode: BallTreeNode): Boolean {
+        return distance(target, ballTreeNode.centroid) - ballTreeNode.radius > range
     }
 }
