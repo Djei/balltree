@@ -1,14 +1,14 @@
 package com.djei.balltree
 
 class BallTreeNode(
-    private val points: List<Point>,
+    val points: List<Point>,
     private val distance: (Point, Point) -> Double,
     private val maxDepth: Int
 ) {
-    private val centroid: Point
+    val centroid: Point
+    val radius: Double
+    lateinit var childs: Pair<BallTreeNode?, BallTreeNode?>
     private val apex: Point
-    private val radius: Double
-    private val childs: Pair<BallTreeNode?, BallTreeNode?>
 
     init {
         if (points.isEmpty()) {
@@ -17,25 +17,10 @@ class BallTreeNode(
         centroid = calculateCentroid()
         apex = calculateApex()
         radius = distance(centroid, apex)
-        childs = split()
     }
 
-    private fun calculateCentroid(): Point {
-        val centroidCoordinates = DoubleArray(points[0].coordinates.size) { 0.0 }
-        points.forEach { point ->
-            point.coordinates.forEachIndexed { index, coordinate ->
-                centroidCoordinates[index] += coordinate
-            }
-        }
-        return Point(centroidCoordinates.map { it / points.size }.toDoubleArray())
-    }
-
-    private fun calculateApex(): Point {
-        return points.maxByOrNull { distance(centroid, it) }!!
-    }
-
-    private fun split(): Pair<BallTreeNode?, BallTreeNode?> {
-        if (maxDepth == 0) {
+    fun split(): Pair<BallTreeNode?, BallTreeNode?> {
+        if (maxDepth == 0 || points.count() == 1) {
             return Pair(null, null)
         }
         val partition1Points = mutableListOf<Point>()
@@ -52,22 +37,31 @@ class BallTreeNode(
                 partition2Points.add(it)
             }
         }
-        if (partition1Points.isEmpty()) {
-            return Pair(
-                null,
-                BallTreeNode(partition2Points, distance, maxDepth - 1)
-            )
-        } else if (partition2Points.isEmpty()) {
-            return Pair(
-                BallTreeNode(partition1Points, distance, maxDepth - 1),
-                null
-            )
+        val leftChild = if (partition1Points.isEmpty()) {
+            null
         } else {
-            return Pair(
-                BallTreeNode(partition1Points, distance, maxDepth - 1),
-                BallTreeNode(partition2Points, distance, maxDepth - 1)
-            )
+            BallTreeNode(partition1Points, distance, maxDepth - 1)
         }
+        val rightChild = if (partition2Points.isEmpty()) {
+            null
+        } else {
+            BallTreeNode(partition2Points, distance, maxDepth - 1)
+        }
+        return Pair(leftChild, rightChild)
+    }
+
+    private fun calculateCentroid(): Point {
+        val centroidCoordinates = DoubleArray(points[0].coordinates.size) { 0.0 }
+        points.forEach { point ->
+            point.coordinates.forEachIndexed { index, coordinate ->
+                centroidCoordinates[index] += coordinate
+            }
+        }
+        return Point(centroidCoordinates.map { it / points.size }.toDoubleArray())
+    }
+
+    private fun calculateApex(): Point {
+        return points.maxByOrNull { distance(centroid, it) }!!
     }
 }
 
