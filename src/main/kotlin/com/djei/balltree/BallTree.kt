@@ -84,8 +84,7 @@ class BallTree(
             val currentFurthestNeighbour = neighbours.peek()
             // ball tree node can be skipped if all its points are further than our current furthest neighbour
             // this is where search speed can be gained, skipping nodes and their content from needing to be searched
-            distance.invoke(target, ballTreeNode.centroid) - ballTreeNode.radius >=
-                    distance.invoke(target, currentFurthestNeighbour)
+            distance(target, ballTreeNode.centroid) - ballTreeNode.radius >= distance(target, currentFurthestNeighbour)
         } else {
             // never skip ball tree node if neighbours collection has not yet reached threshold k
             false
