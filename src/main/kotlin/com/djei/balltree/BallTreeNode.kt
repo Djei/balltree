@@ -26,6 +26,9 @@ class BallTreeNode(
         val partition1Points = mutableListOf<Point>()
         val partition2Points = mutableListOf<Point>()
         // First partition uses apex as center, second partition uses the point the furthest away from apex as center
+        // This is a simple partitioning method that does not necessarily guarantee a good distributions of points
+        // amongst the ball tree nodes
+        // Possible improvement: make the partitioning method configurable
         val firstPartitionCenter = apex
         val secondPartitionCenter = points.maxByOrNull { distance(apex, it) }!!
         points.forEach {

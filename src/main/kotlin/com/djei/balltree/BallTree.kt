@@ -42,10 +42,12 @@ class BallTree(
         } else if (ballTreeNode.childs.first == null && ballTreeNode.childs.second == null) {
             ballTreeNode.points.forEach {
                 if (neighbours.count() < k) {
+                    // neighbours collection has not yet reached threshold k, always add points
                     neighbours.add(it)
                 } else if (distance(target, it) < distance(target, neighbours.peek())) {
+                    // neighbours collection has reached threshold k, only add point if it is closer than the furthest
                     neighbours.add(it)
-                    // Remove point that is the furthest away
+                    // then remove point that is the furthest away
                     neighbours.poll()
                 }
             }
@@ -75,10 +77,12 @@ class BallTree(
     ): Boolean {
         return if (neighbours.count() == k) {
             val currentFurthestNeighbour = neighbours.peek()
-            // Ball tree can be skipped if all its points are further than our current furthest neighbour
+            // ball tree node can be skipped if all its points are further than our current furthest neighbour
+            // this is where search speed can be gained, skipping nodes and their content from needing to be searched
             distance.invoke(target, ballTreeNode.centroid) - ballTreeNode.radius >=
                     distance.invoke(target, currentFurthestNeighbour)
         } else {
+            // never skip ball tree node if neighbours collection has not yet reached threshold k
             false
         }
     }
