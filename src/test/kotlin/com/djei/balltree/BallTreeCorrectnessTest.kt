@@ -32,8 +32,8 @@ class BallTreeCorrectnessTest : BallTreeAbstractTest() {
         val neighbours = ballTree.getKNearestNeighbours(Point(doubleArrayOf(0.15, 0.15)), 2)
 
         Assertions.assertThat(neighbours).hasSize(2)
-        Assertions.assertThat(neighbours.poll()).isEqualTo(Point(doubleArrayOf(0.5, 0.5)))
-        Assertions.assertThat(neighbours.poll()).isEqualTo(Point(doubleArrayOf(0.0, 0.0)))
+        Assertions.assertThat(neighbours[0]).isEqualTo(Point(doubleArrayOf(0.5, 0.5)))
+        Assertions.assertThat(neighbours[1]).isEqualTo(Point(doubleArrayOf(0.0, 0.0)))
     }
 
     @Test

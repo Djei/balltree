@@ -25,10 +25,10 @@ class BallTree(
         }
     }
 
-    fun getKNearestNeighbours(target: Point, k: Int): PriorityQueue<Point> {
-        val result = PriorityQueue(compareBy<Point> { distance(target, it) }.reversed())
+    fun getKNearestNeighbours(target: Point, k: Int): List<Point> {
+        val result = PriorityQueue(compareBy<Pair<Point, Double>> { it.second }.reversed())
         computeKNearestNeighbours(target, k, result, root)
-        return result
+        return result.map { it.first }
     }
 
     fun getPointsWithinRange(target: Point, range: Double): List<Point> {
@@ -40,19 +40,20 @@ class BallTree(
     private fun computeKNearestNeighbours(
         target: Point,
         k: Int,
-        neighbours: PriorityQueue<Point>,
+        neighbours: PriorityQueue<Pair<Point, Double>>,
         ballTreeNode: BallTreeNode
     ) {
         if (skipBallTreeNodeKNearestNeighbours(target, k, neighbours, ballTreeNode)) {
             return
         } else if (ballTreeNode.childs.first == null && ballTreeNode.childs.second == null) {
             ballTreeNode.points.forEach {
+                val distanceToTarget = distance(target, it)
                 if (neighbours.count() < k) {
                     // neighbours collection has not yet reached threshold k, always add points
-                    neighbours.add(it)
-                } else if (distance(target, it) < distance(target, neighbours.peek())) {
+                    neighbours.add(Pair(it, distanceToTarget))
+                } else if (distanceToTarget < neighbours.peek().second) {
                     // neighbours collection has reached threshold k, only add point if it is closer than the furthest
-                    neighbours.add(it)
+                    neighbours.add(Pair(it, distanceToTarget))
                     // then remove point that is the furthest away
                     neighbours.poll()
                 }
@@ -77,14 +78,13 @@ class BallTree(
     private fun skipBallTreeNodeKNearestNeighbours(
         target: Point,
         k: Int,
-        neighbours: PriorityQueue<Point>,
+        neighbours: PriorityQueue<Pair<Point, Double>>,
         ballTreeNode: BallTreeNode
     ): Boolean {
         return if (neighbours.count() == k) {
-            val currentFurthestNeighbour = neighbours.peek()
             // ball tree node can be skipped if all its points are further than our current furthest neighbour
             // this is where search speed can be gained, skipping nodes and their content from needing to be searched
-            distance(target, ballTreeNode.centroid) - ballTreeNode.radius >= distance(target, currentFurthestNeighbour)
+            distance(target, ballTreeNode.centroid) - ballTreeNode.radius >= neighbours.peek().second
         } else {
             // never skip ball tree node if neighbours collection has not yet reached threshold k
             false

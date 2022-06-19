@@ -2,7 +2,6 @@ package com.djei.balltree
 
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
-import java.util.function.Predicate
 import kotlin.random.Random
 
 class BallTreePerformanceTest : BallTreeAbstractTest() {
