@@ -5,7 +5,10 @@ jobs:
   autoupdate:
     name: autoupdate
     runs-on: ubuntu-20.04
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - uses: docker://chinthakagodawita/autoupdate-action:v1
         env:
-          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
